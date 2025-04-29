@@ -1,10 +1,13 @@
-import openai
+import json
 from typing import List, Dict, Any
+
 from app.core.config import settings
+from openai import AsyncOpenAI
+
+aclient = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
 
 class ChatbotService:
     def __init__(self):
-        openai.api_key = settings.OPENAI_API_KEY
 
     async def get_response(self, query: str, candidates: List[Dict[str, Any]]) -> str:
         """Get response from OpenAI based on the query and candidate data"""
@@ -21,15 +24,13 @@ class ChatbotService:
                 ---
                 """
 
-            response = await openai.ChatCompletion.acreate(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": settings.CHAT_SYSTEM_PROMPT},
-                    {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {query}"}
-                ],
-                temperature=0.7,
-                max_tokens=500
-            )
+            response = await aclient.chat.completions.create(model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": settings.CHAT_SYSTEM_PROMPT},
+                {"role": "user", "content": f"Context:\n{context}\n\nQuestion: {query}"}
+            ],
+            temperature=0.7,
+            max_tokens=500)
 
             return response.choices[0].message.content.strip()
 
@@ -39,7 +40,7 @@ class ChatbotService:
     def format_candidates_for_ranking(self, candidates: List[Dict[str, Any]], role: str) -> str:
         """Format candidate data for role-specific ranking"""
         prompt = f"Please rank the following candidates for the {role} role based on their experience and skills:\n\n"
-        
+
         for candidate in candidates:
             prompt += f"""
             Candidate: {candidate['first_name']} {candidate['last_name']}
@@ -49,7 +50,7 @@ class ChatbotService:
             Work Experience Summary: {candidate['work_experience_summary']}
             ---
             """
-            
+
         prompt += f"\nPlease provide a ranked list with brief explanations for why each candidate would be suitable for the {role} role."
         return prompt
 
@@ -57,16 +58,14 @@ class ChatbotService:
         """Rank candidates for a specific role"""
         try:
             prompt = self.format_candidates_for_ranking(candidates, role)
-            
-            response = await openai.ChatCompletion.acreate(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": "You are an expert HR assistant that helps rank candidates based on their qualifications."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.7,
-                max_tokens=1000
-            )
+
+            response = await aclient.chat.completions.create(model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are an expert HR assistant that helps rank candidates based on their qualifications."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=1000)
 
             return response.choices[0].message.content.strip()
 
