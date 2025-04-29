@@ -12,6 +12,13 @@ function ResumeUpload() {
     const file = acceptedFiles[0];
     if (!file) return;
 
+    // Log file details
+    console.log('File details:', {
+      name: file.name,
+      type: file.type,
+      size: file.size
+    });
+
     // Validate file type
     if (!['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
         .includes(file.type)) {
@@ -24,6 +31,7 @@ function ResumeUpload() {
     formData.append('file', file);
 
     try {
+      console.log('Sending request to:', `${API_URL}/api/resume/upload`);
       const response = await axios.post(`${API_URL}/api/resume/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -33,8 +41,17 @@ function ResumeUpload() {
       toast.success('Resume uploaded and processed successfully!');
       console.log('Processed candidate:', response.data.candidate);
     } catch (error) {
-      toast.error(error.response?.data?.detail || 'Error uploading resume');
-      console.error('Upload error:', error);
+      console.error('Upload error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status
+      });
+      
+      // Show more specific error message
+      const errorMessage = error.response?.data?.detail || 
+                         error.message || 
+                         'Error uploading resume';
+      toast.error(errorMessage);
     } finally {
       setUploading(false);
     }
