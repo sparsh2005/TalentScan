@@ -1,4 +1,4 @@
-# TalentScan
+# TalentScan (still building)
 
 A full-stack application for resume parsing and AI-powered talent search.
 
@@ -81,3 +81,13 @@ npm start
 - Backend: FastAPI, pdfminer.six, python-docx, OpenAI API
 - Frontend: React, Axios, TailwindCSS
 - Database: Supabase
+
+Screenshots:
+### Resume Upload UI
+![Resume Upload UI](screenshots/resumeuploadUI.png)
+
+### HR Chatbot UI
+![Resume Upload UI](screenshots/HRchatbotUI.png)
+
+### End Product UI
+![Resume Upload UI](screenshots/endproduct.png)
