@@ -1,4 +1,4 @@
-# TalentScan (still building)
+# TalentScan (unfinished)
 
 A full-stack application for resume parsing and AI-powered talent search.
 
